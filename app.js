@@ -196,10 +196,12 @@ app.get(
     const followingUserId = await db.get(followingUserIdQuery);
     console.log(followingUserId);
     console.log(tweetUserId);
+    let likes = [];
     if (tweetUserId.tweetUserId === followingUserId.followingId) {
       const getResponseQuery = `SELECT username as name FROM user INNER JOIN like WHERE like.tweet_id=;`;
       const getResponse = db.get(getResponseQuery);
-      response.send(getResponse);
+      likes.append(getResponse);
+      response.send(likes);
     } else {
       response.status(401);
       response.send("Invalid Request");
@@ -211,7 +213,24 @@ app.get(
   "/tweets/:tweetId/replies/",
   authenticateToken,
   async (request, response) => {
-    const { username } = request;
+    const { username, userId } = request;
+    const { tweetId } = request.params;
+    const tweetUserIdQuery = `SELECT user_id as tweetUserId FROM tweet WHERE tweet_id=${tweetId};`;
+    const tweetUserId = await db.get(tweetUserIdQuery);
+    const followingUserIdQuery = `SELECT following_user_id as followingId FROM follower WHERE follower_user_id=${userId};`;
+    const followingUserId = await db.get(followingUserIdQuery);
+    console.log(followingUserId);
+    console.log(tweetUserId);
+    let reply = [];
+    if (tweetUserId.tweetUserId === followingUserId.followingId) {
+      const getResponseQuery = `SELECT name,reply FROM user INNER JOIN reply WHERE reply.tweet_id=${tweetId};`;
+      const getResponse = db.get(getResponseQuery);
+      reply.append(getResponse);
+      response.send(reply);
+    } else {
+      response.status(401);
+      response.send("Invalid Request");
+    }
   }
 );
 //API9
