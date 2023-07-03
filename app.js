@@ -36,7 +36,7 @@ app.post("/register/", async (request, response) => {
   const dbUser = await db.get(selectUserQuery);
   if (dbUser === undefined) {
     if (request.body.password.length < 6) {
-      response.status = 400;
+      response.status(400);
       response.send("Password is too short");
     } else {
       const createUserQuery = `
@@ -52,11 +52,11 @@ app.post("/register/", async (request, response) => {
         )`;
       const dbResponse = await db.run(createUserQuery);
       const newUserId = dbResponse.lastID;
-      response.status = 200;
+      response.status(200);
       response.send("User created successfully");
     }
   } else {
-    response.status = 400;
+    response.status(400);
     response.send("User already exists");
   }
 });
